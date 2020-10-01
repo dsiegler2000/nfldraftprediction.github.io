@@ -14,6 +14,9 @@ From our predictive model, we hope to have a model that will predict what positi
 There has been significant research on this topic, for various purposes from entertainment to betting to academia. Some publicly available datasets of note are [1] and [2]. Additionally, [3] uses simple linear regression with feature engineering to achieve results in predicting quarterback performance. Finally, [4] applies similar methods to tight ends. 
 
 [1] Banta, K. (2018, March 17). _NFL Combine 2000-2017_. Kaggle. https://www.kaggle.com/kbanta11/nfl-combine. 
+
 [2] Wexler, R. (2017, October 25). _EDA for NFL Draft Outcomes Data_. Kaggle. https://www.kaggle.com/rwexler/eda-for-nfl-draft-outcomes-data. 
+
 [3] Wolfson, J., Addona, V., Schmicker, R. (2011, July 19). _The Quarterback Prediction Problem: Forecasting the Performance of College Quarterbacks Selected in the NFL Draft._ De Gruyter. https://www.degruyter.com/view/journals/jqas/7/3/article-jqas.2011.7.3.1302.xml.xml. 
+
 [4] Mulholland, J., & Jensen, S. (2014, December 01). _Predicting the draft and career success of tight ends in the National Football League._ Retrieved October 01, 2020, from https://www.degruyter.com/view/journals/jqas/10/4/article-p381.xml
