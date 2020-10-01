@@ -18,6 +18,9 @@ From our predictive model, we hope to have a model that will predict what positi
 ### Discussion
 There has been significant research on this topic, for various purposes from entertainment to betting to academia. Some publicly available datasets of note are [1] and [2]. Additionally, [3] uses simple linear regression with feature engineering to achieve results in predicting quarterback performance. Finally, [4] applies similar methods to tight ends. 
 
+### Checkpoint
+We expect the data collection/wrangling to be difficult, so we will set our checkpoint as having all of the data collected and cleaned, with some basic analysis work done so we have a grasp on what we are working with and can better gauge the methods we will need for the classification step.
+
 ### References
 [1] Banta, K. (2018, March 17). _NFL Combine 2000-2017_. Kaggle. https://www.kaggle.com/kbanta11/nfl-combine. 
 
