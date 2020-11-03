@@ -1,28 +1,11 @@
-# Project Proposal
+# Project Midterm Report
 ### Introduction
 The National Football League is a very popular league in America, and the draft is the primary way in which teams get players straight out of college. Thus, we are very interested in predicting what teams should draft players at which position and when. 
 
 ### Problem Definition
-We are looking to find the ideal draft position for a team to move up or down to in order to get a player at the optimal position at the best value. Given football data and possible params, pick number, team, player rankings, positions of the draft-eligible players: output a position at which the team has the best value
+We are looking to predict, given a player's college career, what pick number they will be in the NFL draft.
 
-### Methods
-First, for the clustering problem, we plan to come up with some consistent metrics across all players/positions. This will enable us to run a clustering algorithm. We feel that a Gaussian Mixture Model would be most appropriate, as positions are fluid and thus we would like soft assignment, but we don’t expect there to be constant density in the data so we think DBSCAN would not do too well. We also plan to try hierarchical clustering; from this clustering, we hope to gain some insight into how to reduce the problem by combining some positions. 
-
-We plan to simplify the problem by assuming that a team has a rank of positions that it wants (ex. QB, defensive lineman, etc), they will pick the top ranked player available for their top position, and if no players ranked in the top 10 of players still available are still available for the team’s top position, they will move on to their 2nd to top position, etc. Though this is not always true, this simplifying assumption allows us to reduce this into a classification problem. Because we are going to put a significant amount of work into feature engineering during our data analysis phase, we expect that a simple predictive model such as SVM will be sufficient, but we plan to explore an SVM, linear regression, and a simple deep neural network.  
-
-### Potential Results
-From our clustering, we want to primarily derive analysis; namely, we want to get more insight into what positions are similar and what positions we can combine to reduce the problem. Additionally, we hope to derive some “weightings” to help us to come up with unified statistics across most or all positions. Since each position has different statistics that are tracked, coming up with a few unified statistics about all players will greatly help us during the predictive modeling phase. 
-
-From our predictive model, we hope to have a model that will predict what position a team wants to take for any given pick. We can then use this to do a full draft simulation, however, this will be highly stochastic as even just a small number of wrong predictions compared to reality will cause our simulation draft to greatly diverge from reality. Thus, a more practical use/result would be to simply predict the next pick for a team while the draft is happening. 
-
-### Discussion
-There has been significant research on this topic, for various purposes from entertainment to betting to academia. Some publicly available datasets of note are [1] and [2]. Additionally, [3] uses simple linear regression with feature engineering to achieve results in predicting quarterback performance. Finally, [4] applies similar methods to tight ends. 
-
-### Checkpoint
-We expect the data collection/wrangling to be difficult, so we will set our checkpoint as having all of the data collected and cleaned, with some basic analysis work done so we have a grasp on what we are working with and can better gauge the methods we will need for the classification step.
-
-# Checkpoint Results
-## Data Wrangling
+### Data Collection
 We got our data from two main sources, [api.collegefootballdata.com](api.collegefootballdata.com) and [https://github.com/leesharpe/nfldata/blob/master/data/draft_picks.csv](https://github.com/leesharpe/nfldata/blob/master/data/draft_picks.csv), the latter of which is just taken from the NFL's website.
 We had to perform some processing to the data to get it into a workable format. The steps are as follows:
 - Download the data from the API
@@ -177,38 +160,59 @@ Thus, in the end, some statistics on our dataset:
 - During the join, we retained draft information on 66.46% of players
 - We have statistics on 35619 players from 2004-2019
 
-## Unsupervised Learning
+### Methods
 We then began our data exploration process. We started by running some basic statistics on our data, which only further exposed this problem of the different positions having different statistics covering them (note the `NaN` percentages and percentiles).
-Next we actually applied the 75th percentile exclusion metric. 
+Next we actually applied the 75th percentile exclusion metric mentioned above. 
 After that, we looked at the distribution of positions among players. 
+
+We went on to PCA. We applied PCA directly to all of the statistics, first standardizing the features and replacing NaN values with the mean, reducing the features to 2 dimensions to visualize.
+
+We continued down the PCA route, though it may be worth exploring Isomaps further in later work.
+Next, we looked to tackling the different positions issues. The statistics were broke up into some categories, such as defensive, offensive, passing, punting, interceptions, etc. and thus we performed PCA on the features in each of these categories, dropping the NaNs this time.
+
+We tried to use the results of these PCAs to reduce the number of features by replacing, for example, the 10 defensive features with just the PCA 1st and 2nd components when trained on the defensive features.
+When we then re-ran PCA on this reduced feature space, the algorithm performed somewhat better.
+
+Next we ran clustering algorithms on our dataset, using the Davies-Bouldin score to evaluate the clusters. 
+We originally wanted to use GMM and hierarchical clustering, but we found that the former performed very poorly, likely due to the replacing the NaNs with the mean, and the later took an unreasonable amount of time to run on our large dataset, even with aggressive stopping conditions.
+We also compared the clusters to a plot of player positions, since we felt like this is a fairly natural way to cluster the players.
+
+We used both KMeans and DBSCAN for clustering and PCA and Isomap for the vizualization of the clustering (projecting into 2D space).
+We used the elbow method to pick `eps` for the DBSCAN, settling on 3.75.
+
+Finally, we some general analysis using Seaborn's `pairplot` function as well as a correlation heatmap, this time including `pick`, which is the pick number, our dependent variable.
+
+For this checkpoint, we kept our modelling very limited, as we wanted to get a good understanding of the data.
+Thus, we just tried a Random Forest and an SVR model, mostly keeping the default parameters.
+
+Finally, we used the random forest to get an approximate idea of feature importances.
+
+### Results
+#### Position Distribution
 ![pos_dist](position_distribution.png)
 Clearly the positions are imbalanced, but not heavily, and furthermore, since we aren't predicting position, this is not of much worry to us. 
-We went on to PCA. We applied PCA directly to all of the statistics, first standardizing the features and replacing NaN values with the mean, reducing the features to 2 dimensions to visualize.
+#### PCA
 ![pca_whole](pca_wholedata.png)
 We noted that PCA did fairly poor job explaining variance, likely due to the linear dependence presented by replacing NaN values with the mean. 
 This is further supported by the fairly flat explained variance distribution.
 ![evr_dist](evr_dist.png)
-We nonetheless continued down the PCA route, though it may be worth exploring Isomaps further in later work.
-Next, we looked to tackling the different positions issues. The statistics were broke up into some categories, such as defensive, offensive, passing, punting, interceptions, etc. and thus we performed PCA on the features in each of these categories, dropping the NaNs this time.
+We then went on to the per-category PCAs:
 ![pca_percat](pca_percategory.png)
 These results look valid, although the explained variances aren't particularly high. 
-We tried to use the results of these PCAs to reduce the number of features by replacing, for example, the 10 defensive features with just the PCA 1st and 2nd components when trained on the defensive features.
-When we then re-ran PCA on this reduced feature space, the algorithm performed somewhat better.
+
+And then re-applying these PCA features to the whole dataset:
 ![pca_double](pca_double.png)
 We think that with more nuanced methods we can potentially use this unsupervised method to reduce our feature space and help with our player positions problem.
-
-Next we ran clustering algorithms on our dataset, using the Davies-Bouldin score to evaluate the clusters. 
-We also compared the clusters to a plot of player positions, since we felt like this is a fairly natural way to cluster the players.
+#### Clustering
 ![kmeans_pca](KMeans_pca.png)
 ![DBSCAN_pca](DBSCAN_pca.png)
 ![kmeans_iso](KMeans_isomap.png)
 ![DBSCAN_iso](DBSCAN_isomap.png)
-We used both KMeans and DBSCAN for clustering and PCA and Isomap for the vizualization of the clustering (projecting into 2D space).
-We used the elbow method to pick `eps` for the DBSCAN, settling on 3.75 based off this plot:
+And the elbow method plot:
 ![elbow](DBSCAN_elbow.png)
 KMeans clearly performed better, likely because our dataset is in such a high dimension, with the `NaN` introducing non-constant densities in the space.
 
-Finally, we some general analysis using Seaborn's `pairplot` function as well as a correlation heatmap, this time including `pick`, which is the pick number, our dependent variable.
+#### General Analysis
 ![pairplot](pairplot.png)
 ![corr](corr_heatmap_pearson.png)
 And the Spearman correlation heatmap:
@@ -217,9 +221,8 @@ Both correlation heatmaps show that there are fairly few strong correlations wit
 However, it is expected that often statistics in the same category are correlated (defensive with defensive, passing with passing, etc).
 The pair plot provides fairly little information. It does highlight some of the mostly weak relationships within categories, and also highlights the lack of any real connection between any one statistic and pick.
 
-# Modelling
-For this checkpoint, we kept our modelling very limited, as we wanted to get a good understanding of the data.
-Thus, we just tried a Random Forest and an SVR model, mostly keeping the default parameters. The performance is as follows with a 90-10 train test split:
+#### Random Forest and SVR
+The performance of the random forest and the SVR is as follows with a 90-10 train test split:
 ```
 Random forest mean absolute error (in sample):     61.74134612472032
 Random forest mean absolute error (out of sample): 57.61811924877714
@@ -227,13 +230,40 @@ Random forest mean absolute error (out of sample): 57.61811924877714
 SVR mean absolute error (in sample):               63.634657390211416
 SVR mean absolute error (out of sample):           57.393961166462105
 ```
-Note that there are ~250 picks in each draft. 
+Note that there are ~250 picks in each draft, and picks are approximately uniformly distributed from 1 to 250. 
 The random forest clearly overfits more, even after some tuning to reduce this, and we are hoping that this will be improved when we figure out how to overcome the player position problem. We plan to focus primarily on modelling from here on out. 
 
-Finally, we used the random forest to get an approximate idea of feature importances.
+#### Feature Importances
 ![feat_importances](feature_importances.png)
 Although these importances should be taken with a grain of salt (since the model is not performing too well), it still demonstrates some important features, namely the pretty common all around defensive, offensive, and passing metrics.
 However, season is still the most important feature. We think that team needs and the draft outlook (which is highly season-dependent) may present some issues for us in the future.
+
+### Discussion
+We believe that the largest challenge that we have yet to solve is that different positions have different statistics corresponding to them, and so many players have the majority of statistics set to `NaN`. 
+However, we have made significant headway towards solving this problem, namely using PCA to combine some features in a clever way.
+
+Furthermore, the actual modelling step may be a bit tricky as well, because, as the literature suggests, there just generally isn't a very strong link between college performance and draft picking, both because a good player in college may not be good in the NFL, and because the draft often has to deal with what the teams want, not just how good the players are.
+We think that with some more advanced models, while also taking steps to prevent overfitting, we can hopefully come up with a model that performs decently well despite this. However, we do have ideas on how to incorporate team needs into our model if it is needed, mostly by relying on trading metrics for existing players.
+
+Finally, we think that some more manual feature engineering could be performed, though we would rather take the approach of coming up with a clever solution that will handle the features of all positions rather than manually engineer features for each of the 12+ positions.
+
+# Original Proposal
+We kept the original proposal just for reference. 
+### Methods
+First, for the clustering problem, we plan to come up with some consistent metrics across all players/positions. This will enable us to run a clustering algorithm. We feel that a Gaussian Mixture Model would be most appropriate, as positions are fluid and thus we would like soft assignment, but we don’t expect there to be constant density in the data so we think DBSCAN would not do too well. We also plan to try hierarchical clustering; from this clustering, we hope to gain some insight into how to reduce the problem by combining some positions. 
+
+We plan to simplify the problem by assuming that a team has a rank of positions that it wants (ex. QB, defensive lineman, etc), they will pick the top ranked player available for their top position, and if no players ranked in the top 10 of players still available are still available for the team’s top position, they will move on to their 2nd to top position, etc. Though this is not always true, this simplifying assumption allows us to reduce this into a classification problem. Because we are going to put a significant amount of work into feature engineering during our data analysis phase, we expect that a simple predictive model such as SVM will be sufficient, but we plan to explore an SVM, linear regression, and a simple deep neural network.  
+
+### Potential Results
+From our clustering, we want to primarily derive analysis; namely, we want to get more insight into what positions are similar and what positions we can combine to reduce the problem. Additionally, we hope to derive some “weightings” to help us to come up with unified statistics across most or all positions. Since each position has different statistics that are tracked, coming up with a few unified statistics about all players will greatly help us during the predictive modeling phase. 
+
+From our predictive model, we hope to have a model that will predict what position a team wants to take for any given pick. We can then use this to do a full draft simulation, however, this will be highly stochastic as even just a small number of wrong predictions compared to reality will cause our simulation draft to greatly diverge from reality. Thus, a more practical use/result would be to simply predict the next pick for a team while the draft is happening. 
+
+### Discussion
+There has been significant research on this topic, for various purposes from entertainment to betting to academia. Some publicly available datasets of note are [1] and [2]. Additionally, [3] uses simple linear regression with feature engineering to achieve results in predicting quarterback performance. Finally, [4] applies similar methods to tight ends. 
+
+### Checkpoint
+We expect the data collection/wrangling to be difficult, so we will set our checkpoint as having all of the data collected and cleaned, with some basic analysis work done so we have a grasp on what we are working with and can better gauge the methods we will need for the classification step.
 
 ### References
 [1] Banta, K. (2018, March 17). _NFL Combine 2000-2017_. Kaggle. https://www.kaggle.com/kbanta11/nfl-combine. 
