@@ -181,7 +181,7 @@ Thus, in the end, some statistics on our dataset:
 We then began our data exploration process. We started by running some basic statistics on our data, which only further exposed this problem of the different positions having different statistics covering them (note the `NaN` percentages and percentiles).
 Next we actually applied the 75th percentile exclusion metric. 
 After that, we looked at the distribution of positions among players. 
-![pos_dist](https://github.com/dsiegler2000/nfldraftprediction.github.io/blob/gh-pages/DBSCAN_elbow.png)
+![pos_dist](position_distribution.png)
 Clearly the positions are imbalanced, but not heavily, and furthermore, since we aren't predicting position, this is not of much worry to us. 
 We went on to PCA. We applied PCA directly to all of the statistics, first standardizing the features and replacing NaN values with the mean, reducing the features to 2 dimensions to visualize.
 ![pca_whole](pca_wholedata.png)
