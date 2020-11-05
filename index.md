@@ -247,6 +247,9 @@ We think that with some more advanced models, while also taking steps to prevent
 
 Finally, we think that some more manual feature engineering could be performed, though we would rather take the approach of coming up with a clever solution that will handle the features of all positions rather than manually engineer features for each of the 12+ positions.
 
+### Github Link: [https://github.com/tbransc/CS4641-Group26](https://github.com/tbransc/CS4641-Group26)
+Please contact us for access. 
+
 # Original Proposal
 We kept the original proposal just for reference. 
 ### Methods
