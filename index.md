@@ -276,6 +276,7 @@ We then ran clustering algorithms on our dataset, using the Davies-Bouldin score
 
 The Fowlkes-Mallows score is an external clustering evaluation metric where a score of 1 indicates perfect clustering. It is defined as follows:
 ![fm_def](fm_def.png)
+
 TP is the number of true positives, FP is the number of false positives, and FN is the number of false negatives. TPR is the true positive rate, also called sensitivity or recall, and PPV is the positive predictive rate, also known as precision.
 
 We originally tried to use GMM and hierarchical clustering, but we found that the former performed very poorly, likely due to the imputing, and the later took an unreasonable amount of time to run on our large dataset, even with aggressive stopping conditions.
